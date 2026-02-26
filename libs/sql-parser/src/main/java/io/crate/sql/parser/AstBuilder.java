@@ -1904,10 +1904,9 @@ class AstBuilder extends SqlBaseParserBaseVisitor<Node> {
         boolean isTrue = context.boolValue.getType() == SqlBaseLexer.TRUE;
         Expression booleanLiteral = isTrue ? BooleanLiteral.TRUE_LITERAL : BooleanLiteral.FALSE_LITERAL;
 
-        Expression result = new ComparisonExpression(
-            ComparisonExpression.Type.EQUAL,
-            value,
-            booleanLiteral
+        Expression result = new FunctionCall(
+            QualifiedName.of("op_is"),
+            List.of(value, booleanLiteral)
         );
 
         if (context.NOT() != null) {

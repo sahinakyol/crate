@@ -21,16 +21,11 @@
 
 package io.crate.expression.operator;
 
-import java.util.List;
-
 import org.apache.lucene.search.Query;
 import org.jspecify.annotations.Nullable;
 
 import io.crate.data.Input;
-import io.crate.expression.symbol.Function;
 import io.crate.expression.symbol.Literal;
-import io.crate.expression.symbol.Symbol;
-import io.crate.lucene.LuceneQueryBuilder.Context;
 import io.crate.metadata.FunctionType;
 import io.crate.metadata.Functions;
 import io.crate.metadata.IndexType;
@@ -52,7 +47,7 @@ public class IsOperator extends Scalar<Boolean, Object> {
     public static final Signature SIGNATURE = Signature.builder(NAME, FunctionType.SCALAR)
         .argumentTypes(DataTypes.BOOLEAN.getTypeSignature(), DataTypes.BOOLEAN.getTypeSignature())
         .returnType(DataTypes.BOOLEAN.getTypeSignature())
-        .features(Feature.DETERMINISTIC)
+        .features(Feature.DETERMINISTIC, Feature.NOTNULL)
         .build();
 
     public static void register(Functions.Builder builder) {
@@ -81,17 +76,10 @@ public class IsOperator extends Scalar<Boolean, Object> {
     }
 
     @Override
-    public Query toQuery(Function function, Context context) {
-        List<Symbol> args = function.arguments();
-
-        if (!(args.get(0) instanceof Reference ref && args.get(1) instanceof Literal<?> literal)) {
-            return null;
-        }
-
+    public Query toQuery(Reference ref, Literal<?> literal) {
         Object value = literal.value();
-        if (value == null) {
-            return null;
-        }
+
+        assert value != null : "IS operator always has TRUE/FALSE literal values due to parser/expression analyzer";
 
         return fromPrimitive(
             ref.valueType(),

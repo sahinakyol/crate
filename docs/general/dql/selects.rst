@@ -541,6 +541,45 @@ does always return ``NULL`` when comparing ``NULL``.
     +----------+-------------+--------+
     SELECT 3 rows in set (... sec)
 
+.. _sql_dql_is_true_or_false:
+
+``IS [ NOT ] TRUE | FALSE``
+---------------------------
+
+Returns ``TRUE`` if the boolean expression :ref:`evaluates <gloss-evaluation>`
+to ``TRUE`` (when using ``IS TRUE``) or ``FALSE`` (when using ``IS FALSE``).
+
+.. vale off
+
+:expr:
+  :ref:`Expression <gloss-expression>` of the boolean :ref:`data type <data-types>`.
+
+.. vale on
+
+This predicate evaluates the expression using SQL's three-valued logic. This
+means that checking if a ``NULL`` value ``IS TRUE`` or ``IS FALSE`` will always
+return ``FALSE`` (rather than ``NULL``).
+
+Conversely, negating it with ``IS NOT TRUE`` or ``IS NOT FALSE`` on a ``NULL``
+value will return ``TRUE``.
+
+::
+
+    cr> SELECT
+    ...   name,
+    ...   is_good,
+    ...   is_good IS TRUE as is_true,
+    ...   is_good IS FALSE as is_false
+    ... FROM unnest(['Arthur', 'Trillian', 'Marvin'], [true, false, null]) as t(name, is_good)
+    ... ORDER BY name;
+    +----------+---------+---------+----------+
+    | name     | is_good | is_true | is_false |
+    +----------+---------+---------+----------+
+    | Arthur   | TRUE    | TRUE    | FALSE    |
+    | Marvin   | NULL    | FALSE   | FALSE    |
+    | Trillian | FALSE   | FALSE   | TRUE     |
+    +----------+---------+---------+----------+
+    SELECT 3 rows in set (... sec)
 
 .. _sql_dql_array_comparisons:
 

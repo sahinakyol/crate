@@ -556,10 +556,8 @@ to ``TRUE`` (when using ``IS TRUE``) or ``FALSE`` (when using ``IS FALSE``).
 
 .. vale on
 
-This predicate evaluates the expression using SQL's three-valued logic. This
-means that checking if a ``NULL`` value ``IS TRUE`` or ``IS FALSE`` will always
-return ``FALSE`` (rather than ``NULL``).
-
+The predicate evaluates ``NULL`` as ``FALSE``. This is different than the
+regular equals operator which will return ``NULL`` for ``NULL`` inputs.
 Conversely, negating it with ``IS NOT TRUE`` or ``IS NOT FALSE`` on a ``NULL``
 value will return ``TRUE``.
 
@@ -567,18 +565,18 @@ value will return ``TRUE``.
 
     cr> SELECT
     ...   name,
-    ...   is_good,
-    ...   is_good IS TRUE as is_true,
-    ...   is_good IS FALSE as is_false
-    ... FROM unnest(['Arthur', 'Trillian', 'Marvin'], [true, false, null]) as t(name, is_good)
+    ...   is_admin,
+    ...   is_admin IS TRUE as is_true,
+    ...   is_admin IS FALSE as is_false
+    ... FROM unnest(['Arthur', 'Trillian', 'Marvin'], [true, false, null]) as users (name, is_admin)
     ... ORDER BY name;
-    +----------+---------+---------+----------+
-    | name     | is_good | is_true | is_false |
-    +----------+---------+---------+----------+
-    | Arthur   | TRUE    | TRUE    | FALSE    |
-    | Marvin   | NULL    | FALSE   | FALSE    |
-    | Trillian | FALSE   | FALSE   | TRUE     |
-    +----------+---------+---------+----------+
+    +----------+----------+---------+----------+
+    | name     | is_admin | is_true | is_false |
+    +----------+----------+---------+----------+
+    | Arthur   | TRUE     | TRUE    | FALSE    |
+    | Marvin   | NULL     | FALSE   | FALSE    |
+    | Trillian | FALSE    | FALSE   | TRUE     |
+    +----------+----------+---------+----------+
     SELECT 3 rows in set (... sec)
 
 .. _sql_dql_array_comparisons:
